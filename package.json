@@ -1,0 +1,10 @@
+{
+  "name": "my-live-server",
+  "packageManager": "yarn@4.3.1",
+  "scripts": {
+    "golive" : "lt --port 8000"
+  },
+  "dependencies": {
+    "localtunnel": "^2.0.2"
+  }
+}
