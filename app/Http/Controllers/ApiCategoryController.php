@@ -17,7 +17,6 @@ class ApiCategoryController extends Controller
     {
        $categories = Category::all();
        return CategoryResource::collection($categories);
-
     }
     public function show($id){
         $category = Category::find($id);
@@ -64,61 +63,54 @@ public function create(Request $request){
 
 
 
-        public function update(Request $request){
-            $validator = Validator::make($request->all(),[
-                'name' => 'required|string|max:255',
-            ]);
-            if($validator->fails()){
-                return response()->json(
-                    [
-                        "message" =>$validator->errors(),
-                        "status_code" => 400,
-                    ] , 400 );
+    //     public function update(Request $request){
+    //         $validator = Validator::make($request->all(),[
+    //             'name' => 'required|string|max:255',
+    //         ]);
+    //         if($validator->fails()){
+    //             return response()->json(
+    //                 [
+    //                     "message" =>$validator->errors(),
+    //                     "status_code" => 400,
+    //                 ] , 400 );
 
-        }
-        $category = Category::find($request->id);
-        if ($category == null){
-            return response()->json(
-                [
-                    "message" => "Category not found",
-                    "status_code" => 404,
-                ],404);
-        }
-        $category->update([
-            'name' => $request->name,
-        ]);
+    //     }
+    //     $category = Category::find($request->id);
+    //     if ($category == null){
+    //         return response()->json(
+    //             [
+    //                 "message" => "Category not found",
+    //                 "status_code" => 404,
+    //             ],404);
+    //     }
+    //     $category->update([
+    //         'name' => $request->name,
+    //     ]);
 
-       return response()->json(
-        ["message" => "Category updated Successfully",
-        "status_code" => 200,
-        ],200);
+    //    return response()->json(
+    //     ["message" => "Category updated Successfully",
+    //     "status_code" => 200,
+    //     ],200);
 
-    }
-    public function delete($id){
-        $category = Category::find($id);
-        if ($category == null){
-            return response()->json(
-                [
-                    "message" => "Category not found",
-                    "status_code" => 404,
-                ],404);
-        }
-        $category->delete();
+    // }
+    // public function delete($id){
+    //     $category = Category::find($id);
+    //     if ($category == null){
+    //         return response()->json(
+    //             [
+    //                 "message" => "Category not found",
+    //                 "status_code" => 404,
+    //             ],404);
+    //     }
+    //     $category->delete();
 
-       return response()->json(
-        ["message" => "Category deleted Successfully",
-        "status_code" => 200,
-        ],200);
-    }
-
-
-    public function register(Request $request){
-        
-    }
+    //    return response()->json(
+    //     ["message" => "Category deleted Successfully",
+    //     "status_code" => 200,
+    //     ],200);
+    // }
 
 
-
-        }
 
     /**
      * Store a newly created resource in storage.
@@ -153,3 +145,4 @@ public function create(Request $request){
 //     }
 // }
 
+}

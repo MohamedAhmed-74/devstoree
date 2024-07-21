@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 use App\Http\Resources\ProductResource;
 use Illuminate\Http\Request;
 use App\Models\Product;
+use App\Models\Category;
+use App\Models\Image;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class ApiProductController extends Controller
 {
@@ -21,5 +25,4 @@ class ApiProductController extends Controller
             return new ProductResource($product);
 }
 
-    }
-
+}

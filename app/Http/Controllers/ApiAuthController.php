@@ -2,115 +2,86 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use App\Models\User;
-use App\Models\PersonalAccessToken;
-use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
+
 
 class ApiAuthController extends Controller
 {
     public function register(Request $request)
     {
+        $email_request = trim($request->email);
+        $email = str_replace(' ', '', $email_request);
+        // Validate the request data
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
+            'email' => 'required|string|email|max:255|unique:users|regex:/\S+/',
+            'password' => 'required|string|confirmed|min:8', 
+
         ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                "message" => $validator->errors(),
-                "status_code" => 400,
-            ], 400);
-        }
-
+       if ($validator->fails()){
+        return response()->json([
+            'errors'=> $validator->errors(),
+        ],422);
+       }
+        // Create the new user
         $user = User::create([
             'name' => $request->name,
-            'email' => Str::lower($request->email),
-            'password' => bcrypt($request->password),
+            'email' => $email,
+            'password' => Hash::make($request->password),
         ]);
 
-        $access_token = Str::random(64);
+        // Create a new token for the user
+        $token = $user->createToken('authToken')->plainTextToken;
 
-        PersonalAccessToken::create([
-            'user_id' => $user->id,
-            'token' => hash('sha256', $access_token),
-        ]);
-
+        // Return the user and token in response
         return response()->json([
-            "message" => "User created successfully",
-            "status_code" => 201,
-            "data" => $user,
-            "access_token" => $access_token,
+            'message'=>'user created successfully',
+            'user' => $user,
+            'token' => $token,
         ], 201);
     }
 
     public function login(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|string|email|max:255',
+        // Validate the request data
+        $request->validate([
+            'email' => 'required|string|email',
             'password' => 'required|string|min:8',
         ]);
 
-        if ($validator->fails()) {
+        // Find the user by email
+        $user = User::where('email', $request->email)->first();
+
+        // Check if user exists and password matches
+        if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json([
-                "message" => $validator->errors(),
-                "status_code" => 400,
-            ], 400);
-        }
-
-        $user = User::where('email', Str::lower($request->email))->first();
-
-        if ($user != null) {
-            if (Hash::check($request->password, $user->password)) {
-                $access_token = Str::random(64);
-
-                PersonalAccessToken::create([
-                    'user_id' => $user->id,
-                    'token' => hash('sha256', $access_token),
-                ]);
-
-                return response()->json([
-                    'message' => 'Login success',
-                    'access_token' => $access_token,
-                ], 200);
-            } else {
-                return response()->json([
-                    'message' => 'Username or password is incorrect',
-                    'status_code' => 401,
-                ], 401);
-            }
-        } else {
-            return response()->json([
-                'message' => 'Username or password is incorrect',
-                'status_code' => 401,
+                'message' => 'email or password is not correct.',
             ], 401);
         }
+
+        // Create a new token for the user
+        $token = $user->createToken('authToken')->plainTextToken;
+
+        // Return the user and token in response
+        return response()->json([
+            'message' => 'user logged in successfully',
+            'user' => $user,
+            'token' => $token,
+        ], 200);
     }
 
     public function logout(Request $request)
     {
-        $access_token = $request->header('access_token');
+        // Revoke the current token
+        $request->user()->currentAccessToken()->delete();
 
-        if ($access_token != null) {
-            $token = PersonalAccessToken::where('token', hash('sha256', $access_token))->first();
-
-            if ($token != null) {
-                $token->delete();
-                return response()->json([
-                    "message" => 'Logged out successfully'
-                ], 200);
-            } else {
-                return response()->json([
-                    'message' => 'Access token not correct'
-                ], 401);
-            }
-        } else {
-            return response()->json([
-                'message' => 'Access token not found'
-            ], 400);
-        }
+        // Return success message
+        return response()->json([
+            'message' => 'You have been logged out.',
+        ], 200);
     }
 }

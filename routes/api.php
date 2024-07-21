@@ -10,20 +10,23 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 
-Route::get('/categories',[ApiCategoryController::class,'all']);
-Route::get('/categories/show/{id}',[ApiCategoryController::class,'show']);
-
-Route::post('/categories/create',[ApiCategoryController::class,'create']);
-
-Route::put('/categories/update/{id}',[ApiCategoryController::class,'update']);
-
-Route::delete('/categories/delete/{id}',[ApiCategoryController::class,'delete']);
+Route::get('/categories',[ApiCategoryController::class,'all'])->middleware('auth:sanctum');
 
 
+// Route::get('/categories/show/{id}',[ApiCategoryController::class,'show']);
 
-Route::post('/register',[ApiAuthController::class,'register']);
-Route::post('/login',[ApiAuthController::class,'login']);
-Route::post('/logout',[ApiAuthController::class,'logout'])->middleware('api_auth');
+// Route::post('/categories/create',[ApiCategoryController::class,'create']);
+
+// Route::put('/categories/update/{id}',[ApiCategoryController::class,'update']);
+
+// Route::delete('/categories/delete/{id}',[ApiCategoryController::class,'delete']);
+
+
+
+Route::post('/register', [ApiAuthController::class, 'register']);
+Route::post('/login', [ApiAuthController::class, 'login']);
+
+Route::post('/logout', [ApiAuthController::class, 'logout'])->middleware('auth:sanctum');
 // Route::post`
 
 
